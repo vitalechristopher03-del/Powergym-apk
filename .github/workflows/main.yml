@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout project
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Java 17
@@ -20,12 +20,310 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android packages
+      - name: Create Android project
         run: |
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
-          yes | sdkmanager --licenses
+          mkdir -p app/src/main/java/com/powergym/teamamuerteapp
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/xml
 
-      - name: Download Gradle 8.7
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "PowerGymWebView"
+          include ':app'
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.5.2' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.powergym.teamamuerteapp'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId 'com.powergym.teamamuerteapp'
+                  minSdk 23
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+          EOF
+
+          cat > app/src/main/res/values/strings.xml <<'EOF'
+          <resources>
+              <string name="app_name">Power Gym</string>
+          </resources>
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:windowNoTitle">true</item>
+                  <item name="android:windowActionBar">false</item>
+                  <item name="android:statusBarColor">#050505</item>
+                  <item name="android:navigationBarColor">#050505</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <path android:fillColor="#050505" android:pathData="M0,0h108v108h-108z"/>
+              <path android:fillColor="#E50914" android:pathData="M18,18h72v72h-72z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M31,40h10v28h-10zM45,40h20v8h-10v4h10v8h-10v8h-10zM69,40h8v28h-8z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/xml/network_security_config.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="false" />
+          </network-security-config>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+
+              <application
+                  android:allowBackup="true"
+                  android:icon="@drawable/ic_launcher"
+                  android:label="@string/app_name"
+                  android:supportsRtl="true"
+                  android:theme="@style/AppTheme"
+                  android:usesCleartextTraffic="false"
+                  android:networkSecurityConfig="@xml/network_security_config">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:screenOrientation="portrait">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/powergym/teamamuerteapp/MainActivity.java <<'EOF'
+          package com.powergym.teamamuerteapp;
+
+          import android.Manifest;
+          import android.annotation.SuppressLint;
+          import android.app.Activity;
+          import android.app.DownloadManager;
+          import android.content.Intent;
+          import android.content.pm.PackageManager;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.os.Bundle;
+          import android.os.Environment;
+          import android.util.Base64;
+          import android.webkit.CookieManager;
+          import android.webkit.DownloadListener;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.URLUtil;
+          import android.webkit.ValueCallback;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebResourceRequest;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.widget.Toast;
+
+          import java.io.File;
+          import java.io.FileOutputStream;
+
+          public class MainActivity extends Activity {
+              private static final String START_URL = "https://powergym2.dragonvitale11.workers.dev/";
+              private WebView webView;
+              private ValueCallback<Uri[]> filePathCallback;
+
+              @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  webView = new WebView(this);
+                  setContentView(webView);
+
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setDatabaseEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+                  settings.setLoadWithOverviewMode(true);
+                  settings.setUseWideViewPort(true);
+
+                  CookieManager.getInstance().setAcceptCookie(true);
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                      CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
+                  }
+
+                  webView.addJavascriptInterface(new AndroidBridge(), "Android");
+
+                  webView.setWebViewClient(new WebViewClient() {
+                      @Override
+                      public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                          view.loadUrl(request.getUrl().toString());
+                          return true;
+                      }
+
+                      @Override
+                      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                          view.loadUrl(url);
+                          return true;
+                      }
+                  });
+
+                  webView.setWebChromeClient(new WebChromeClient() {
+                      @Override
+                      public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
+                          if (filePathCallback != null) {
+                              filePathCallback.onReceiveValue(null);
+                          }
+                          filePathCallback = callback;
+                          try {
+                              startActivityForResult(params.createIntent(), 1001);
+                          } catch (Exception e) {
+                              filePathCallback = null;
+                              Toast.makeText(MainActivity.this, "Impossibile aprire selezione file", Toast.LENGTH_SHORT).show();
+                              return false;
+                          }
+                          return true;
+                      }
+                  });
+
+                  webView.setDownloadListener(new DownloadListener() {
+                      @Override
+                      public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                          try {
+                              if (url.startsWith("data:image/png;base64,")) {
+                                  saveBase64Png(url, "power-gym-scheda.png");
+                                  return;
+                              }
+
+                              DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                              request.setMimeType(mimeType);
+                              String cookies = CookieManager.getInstance().getCookie(url);
+                              if (cookies != null) request.addRequestHeader("cookie", cookies);
+                              request.addRequestHeader("User-Agent", userAgent);
+                              String filename = URLUtil.guessFileName(url, contentDisposition, mimeType);
+                              request.setTitle(filename);
+                              request.setDescription("Download Power Gym");
+                              request.allowScanningByMediaScanner();
+                              request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                              request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
+
+                              DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                              manager.enqueue(request);
+                              Toast.makeText(MainActivity.this, "Download avviato", Toast.LENGTH_SHORT).show();
+                          } catch (Exception e) {
+                              Toast.makeText(MainActivity.this, "Download non riuscito", Toast.LENGTH_LONG).show();
+                          }
+                      }
+                  });
+
+                  if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT < 29 &&
+                          checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                      requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2001);
+                  }
+
+                  webView.loadUrl(START_URL);
+              }
+
+              @Override
+              protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+                  super.onActivityResult(requestCode, resultCode, data);
+                  if (requestCode == 1001 && filePathCallback != null) {
+                      Uri[] results = null;
+                      if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                          results = new Uri[]{data.getData()};
+                      }
+                      filePathCallback.onReceiveValue(results);
+                      filePathCallback = null;
+                  }
+              }
+
+              @Override
+              public void onBackPressed() {
+                  if (webView != null && webView.canGoBack()) {
+                      webView.goBack();
+                  } else {
+                      super.onBackPressed();
+                  }
+              }
+
+              private void saveBase64Png(String dataUrl, String filename) {
+                  try {
+                      String base64 = dataUrl;
+                      int comma = dataUrl.indexOf(",");
+                      if (comma >= 0) base64 = dataUrl.substring(comma + 1);
+                      byte[] decoded = Base64.decode(base64, Base64.DEFAULT);
+
+                      File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                      if (!dir.exists()) dir.mkdirs();
+
+                      File file = new File(dir, filename);
+                      FileOutputStream out = new FileOutputStream(file);
+                      out.write(decoded);
+                      out.flush();
+                      out.close();
+
+                      sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+                      Toast.makeText(this, "PNG salvato in Download", Toast.LENGTH_LONG).show();
+                  } catch (Exception e) {
+                      Toast.makeText(this, "Errore salvataggio PNG", Toast.LENGTH_LONG).show();
+                  }
+              }
+
+              public class AndroidBridge {
+                  @JavascriptInterface
+                  public void downloadBase64Image(final String dataUrl, final String filename) {
+                      runOnUiThread(new Runnable() {
+                          @Override
+                          public void run() {
+                              saveBase64Png(dataUrl, filename == null || filename.trim().isEmpty() ? "power-gym-scheda.png" : filename);
+                          }
+                      });
+                  }
+              }
+          }
+          EOF
+
+      - name: Download Gradle
         run: |
           curl -L https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle.zip
           unzip -q gradle.zip
