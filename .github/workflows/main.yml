@@ -1,4 +1,4 @@
-name: Build Power Gym APK
+name: Crea l'APK di Power Gym
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout project
         uses: actions/checkout@v4
 
       - name: Set up Java 17
@@ -19,6 +19,11 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          yes | sdkmanager --licenses
 
       - name: Create Android project
         run: |
@@ -96,7 +101,9 @@ jobs:
               android:viewportHeight="108">
               <path android:fillColor="#050505" android:pathData="M0,0h108v108h-108z"/>
               <path android:fillColor="#E50914" android:pathData="M18,18h72v72h-72z"/>
-              <path android:fillColor="#FFFFFF" android:pathData="M31,40h10v28h-10zM45,40h20v8h-10v4h10v8h-10v8h-10zM69,40h8v28h-8z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M30,40h12v28h-12z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M47,40h22v8h-12v4h12v8h-12v8h-10z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M74,40h8v28h-8z"/>
           </vector>
           EOF
 
@@ -143,12 +150,14 @@ jobs:
           import android.annotation.SuppressLint;
           import android.app.Activity;
           import android.app.DownloadManager;
+          import android.content.ContentValues;
           import android.content.Intent;
           import android.content.pm.PackageManager;
           import android.net.Uri;
           import android.os.Build;
           import android.os.Bundle;
           import android.os.Environment;
+          import android.provider.MediaStore;
           import android.util.Base64;
           import android.webkit.CookieManager;
           import android.webkit.DownloadListener;
@@ -164,6 +173,7 @@ jobs:
 
           import java.io.File;
           import java.io.FileOutputStream;
+          import java.io.OutputStream;
 
           public class MainActivity extends Activity {
               private static final String START_URL = "https://powergym2.dragonvitale11.workers.dev/";
@@ -197,13 +207,26 @@ jobs:
                   webView.setWebViewClient(new WebViewClient() {
                       @Override
                       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                          view.loadUrl(request.getUrl().toString());
+                          String url = request.getUrl().toString();
+                          if (url.startsWith("http://") || url.startsWith("https://")) {
+                              view.loadUrl(url);
+                              return true;
+                          }
+                          try {
+                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                          } catch (Exception ignored) {}
                           return true;
                       }
 
                       @Override
                       public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                          view.loadUrl(url);
+                          if (url.startsWith("http://") || url.startsWith("https://")) {
+                              view.loadUrl(url);
+                              return true;
+                          }
+                          try {
+                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                          } catch (Exception ignored) {}
                           return true;
                       }
                   });
@@ -214,7 +237,9 @@ jobs:
                           if (filePathCallback != null) {
                               filePathCallback.onReceiveValue(null);
                           }
+
                           filePathCallback = callback;
+
                           try {
                               startActivityForResult(params.createIntent(), 1001);
                           } catch (Exception e) {
@@ -222,6 +247,7 @@ jobs:
                               Toast.makeText(MainActivity.this, "Impossibile aprire selezione file", Toast.LENGTH_SHORT).show();
                               return false;
                           }
+
                           return true;
                       }
                   });
@@ -237,9 +263,14 @@ jobs:
 
                               DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                               request.setMimeType(mimeType);
+
                               String cookies = CookieManager.getInstance().getCookie(url);
-                              if (cookies != null) request.addRequestHeader("cookie", cookies);
+                              if (cookies != null) {
+                                  request.addRequestHeader("cookie", cookies);
+                              }
+
                               request.addRequestHeader("User-Agent", userAgent);
+
                               String filename = URLUtil.guessFileName(url, contentDisposition, mimeType);
                               request.setTitle(filename);
                               request.setDescription("Download Power Gym");
@@ -249,6 +280,7 @@ jobs:
 
                               DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                               manager.enqueue(request);
+
                               Toast.makeText(MainActivity.this, "Download avviato", Toast.LENGTH_SHORT).show();
                           } catch (Exception e) {
                               Toast.makeText(MainActivity.this, "Download non riuscito", Toast.LENGTH_LONG).show();
@@ -267,11 +299,14 @@ jobs:
               @Override
               protected void onActivityResult(int requestCode, int resultCode, Intent data) {
                   super.onActivityResult(requestCode, resultCode, data);
+
                   if (requestCode == 1001 && filePathCallback != null) {
                       Uri[] results = null;
+
                       if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                           results = new Uri[]{data.getData()};
                       }
+
                       filePathCallback.onReceiveValue(results);
                       filePathCallback = null;
                   }
@@ -290,19 +325,46 @@ jobs:
                   try {
                       String base64 = dataUrl;
                       int comma = dataUrl.indexOf(",");
-                      if (comma >= 0) base64 = dataUrl.substring(comma + 1);
+                      if (comma >= 0) {
+                          base64 = dataUrl.substring(comma + 1);
+                      }
+
                       byte[] decoded = Base64.decode(base64, Base64.DEFAULT);
 
-                      File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                      if (!dir.exists()) dir.mkdirs();
+                      if (Build.VERSION.SDK_INT >= 29) {
+                          ContentValues values = new ContentValues();
+                          values.put(MediaStore.Downloads.DISPLAY_NAME, filename);
+                          values.put(MediaStore.Downloads.MIME_TYPE, "image/png");
+                          values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
 
-                      File file = new File(dir, filename);
-                      FileOutputStream out = new FileOutputStream(file);
-                      out.write(decoded);
-                      out.flush();
-                      out.close();
+                          Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
 
-                      sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+                          if (uri == null) {
+                              Toast.makeText(this, "Errore creazione file PNG", Toast.LENGTH_LONG).show();
+                              return;
+                          }
+
+                          OutputStream out = getContentResolver().openOutputStream(uri);
+                          if (out != null) {
+                              out.write(decoded);
+                              out.flush();
+                              out.close();
+                          }
+                      } else {
+                          File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                          if (!dir.exists()) {
+                              dir.mkdirs();
+                          }
+
+                          File file = new File(dir, filename);
+                          FileOutputStream out = new FileOutputStream(file);
+                          out.write(decoded);
+                          out.flush();
+                          out.close();
+
+                          sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+                      }
+
                       Toast.makeText(this, "PNG salvato in Download", Toast.LENGTH_LONG).show();
                   } catch (Exception e) {
                       Toast.makeText(this, "Errore salvataggio PNG", Toast.LENGTH_LONG).show();
@@ -315,7 +377,12 @@ jobs:
                       runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
-                              saveBase64Png(dataUrl, filename == null || filename.trim().isEmpty() ? "power-gym-scheda.png" : filename);
+                              saveBase64Png(
+                                      dataUrl,
+                                      filename == null || filename.trim().isEmpty()
+                                              ? "power-gym-scheda.png"
+                                              : filename
+                              );
                           }
                       });
                   }
@@ -323,7 +390,7 @@ jobs:
           }
           EOF
 
-      - name: Download Gradle
+      - name: Download Gradle 8.7
         run: |
           curl -L https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle.zip
           unzip -q gradle.zip
