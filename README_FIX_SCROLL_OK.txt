@@ -1,0 +1,1 @@
+Correzione scroll mobile: rimossi touch-action e overscroll-behavior aggressivi, mantenendo fondo scuro e overflow-y auto. Include anche modifiche precedenti su scadenze 7 giorni, gruppi muscolari e scelta esercizi con immagini.

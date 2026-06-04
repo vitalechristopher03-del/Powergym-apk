@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Area Cliente - Power Gym</title>
+  <meta name="description" content="Area cliente personale Power Gym." />
+  <link rel="stylesheet" href="styles.css?v=png-viewer-download-fix-1" />
+</head>
+<body class="portal-body">
+  <header class="header">
+    <nav class="nav">
+      <a href="index.html" class="brand">
+        <img src="assets/logo-poster.jpg" alt="Logo Power Gym" />
+        <div>
+          <strong>POWER GYM</strong>
+          <span>Area Cliente</span>
+        </div>
+      </a>
+
+      <div class="nav-links admin-nav">
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="portal-page">
+    <section id="clientLogin" class="login-panel">
+      <p class="eyebrow">Area Cliente</p>
+      <h1>Accedi alla tua scheda</h1>
+      <p class="muted">Inserisci nome e cognome. La scheda viene letta dal gestionale online.</p>
+
+      <form id="clientLoginForm" class="request-form portal-form">
+        <label>Nome
+          <input id="clientLoginName" type="text" placeholder="Es. Mario" autocomplete="given-name" required />
+        </label>
+        <label>Cognome
+          <input id="clientLoginSurname" type="text" placeholder="Es. Rossi" autocomplete="family-name" required />
+        </label>
+        <button class="btn primary full" type="submit">Entra</button>
+        <p id="clientLoginMessage" class="form-message"></p>
+      </form>
+    </section>
+
+    <section id="clientDashboard" class="client-dashboard hidden">
+      <div class="dashboard-header">
+        <div>
+          <p class="eyebrow">Scheda personale</p>
+          <h1 id="clientTitle">Benvenuto</h1>
+          <p id="clientSub" class="muted">La tua scheda aggiornata.</p>
+        </div>
+        <div class="client-header-actions">
+          <div class="client-history-menu-wrap">
+            <button id="clientHistoryToggle" class="client-history-toggle" type="button" aria-label="Storico schede">⋮</button>
+            <div id="clientHistoryMenu" class="client-history-menu hidden">
+              <strong>Storico schede</strong>
+              <p class="muted">Caricamento...</p>
+            </div>
+          </div>
+          <button id="clientLogout" class="btn secondary">Esci</button>
+        </div>
+      </div>
+      <div id="clientSheet" class="sheet-view"></div>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js?v=png-viewer-download-fix-1"></script>
+  <script src="firebase-api.js?v=png-viewer-download-fix-1"></script>
+  <script src="manus-api.js?v=png-viewer-download-fix-1"></script>
+  <script src="local-exercises.js?v=png-viewer-download-fix-1"></script>
+  <script src="ui-effects.js?v=png-viewer-download-fix-1"></script>
+  <script src="cliente.js?v=png-viewer-download-fix-1"></script>
+</body>
+</html>

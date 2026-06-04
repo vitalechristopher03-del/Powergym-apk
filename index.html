@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Power Gym</title>
+  <meta name="description" content="Power Gym - richiesta schede via WhatsApp e area admin per generare schede." />
+  <link rel="stylesheet" href="styles.css?v=png-viewer-download-fix-1" />
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <a href="#home" class="brand">
+        <img src="assets/logo-poster.jpg" alt="Logo Power Gym" />
+        <div>
+          <strong>POWER GYM</strong>
+          <span>No Limits. No Excuses.</span>
+        </div>
+      </a>
+
+      <button id="menuButton" class="menu-button" aria-label="Apri menu">☰</button>
+
+      <div id="navLinks" class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#servizi">Servizi</a>
+        <a href="#scheda">Richiedi scheda</a>
+        <a href="#contatti">Contatti</a>
+        <a href="cliente.html">Area Cliente</a><a href="admin.html">Admin</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Palestra • Fitness • Combat</p>
+        <h1>POWER GYM</h1>
+        <p class="tagline">NO LIMITS. NO EXCUSES.</p>
+        <p class="hero-text">
+          Richiedi la tua scheda personalizzata. Antonio riceve i dati su WhatsApp,
+          crea la scheda dall’area admin e te la invia come immagine.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn primary" href="#scheda">Richiedi la tua scheda</a>
+          <a class="btn secondary" href="cliente.html">Area Cliente</a>
+          <a class="btn secondary" id="heroWhatsapp" href="#">Scrivi su WhatsApp</a>
+        </div>
+
+        <div class="social-spotlight" aria-label="Social Power Gym">
+          <a class="social-btn instagram" href="https://www.instagram.com/team_amuerte_gym?igsh=bmlmeDlkOThsbm0y" target="_blank" rel="noopener noreferrer">
+            <span>Instagram</span>
+            <strong>@team_amuerte_gym</strong>
+          </a>
+          <a class="social-btn tiktok" href="https://www.tiktok.com/@team_amuerte_gym?_r=1&_t=ZN-96nLmgsXjeQ" target="_blank" rel="noopener noreferrer">
+            <span>TikTok</span>
+            <strong>@team_amuerte_gym</strong>
+          </a>
+          <a class="social-btn whatsapp" href="https://whatsapp.com/channel/0029VbCDOlf6BIEgV4JcIA35" target="_blank" rel="noopener noreferrer">
+            <span>WhatsApp</span>
+            <strong>Canale ufficiale</strong>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="banner-strip">
+      <img src="assets/brand-banner.png" alt="Banner Power Gym" />
+    </section>
+
+    <section id="servizi" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Servizi</p>
+        <h2>Allenamento vero. Mentalità forte.</h2>
+        <p class="section-text">
+          Power Gym è pensata per chi vuole risultati. Allenamento, disciplina,
+          supporto e schede personalizzate.
+        </p>
+      </div>
+
+      <div class="cards">
+        <article class="card">
+          <h3>Schede divise per giorni</h3>
+          <p>Christopher può creare la scheda per Giorno A, B, C o D e tenere tutto ordinato.</p>
+        </article>
+
+        <article class="card">
+          <h3>Esercizi per gruppo muscolare</h3>
+          <p>Petto, schiena, spalle, gambe, glutei, bicipiti, tricipiti e addome.</p>
+        </article>
+
+        <article class="card">
+          <h3>Richiesta WhatsApp</h3>
+          <p>Il cliente compila il modulo e invia i dati direttamente a Christopher su WhatsApp.</p>
+        </article>
+
+        <article class="card">
+          <h3>Admin guidato</h3>
+          <p>Esercizi con immagine, selezione a scaletta per serie, ripetizioni e recupero.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="scheda" class="section request-section">
+      <div class="request-info">
+        <p class="eyebrow">Richiedi scheda</p>
+        <h2>Compila e invia su WhatsApp</h2>
+        <p>
+          Il modulo prepara un messaggio già compilato. Dopo l’invio, Christopher può creare
+          la scheda dall’area admin e mandartela come immagine.
+        </p>
+
+        <div class="steps">
+          <div><strong>1</strong><span>Compila il modulo</span></div>
+          <div><strong>2</strong><span>Invia su WhatsApp</span></div>
+          <div><strong>3</strong><span>Ricevi la scheda immagine</span></div>
+        </div>
+      </div>
+
+      <form id="requestForm" class="request-form">
+        <label>
+          Nome e cognome
+          <input id="fullName" type="text" placeholder="Es. Mario Rossi" required />
+        </label>
+
+        <label>
+          Età
+          <input id="age" type="number" min="10" max="100" placeholder="Es. 26" />
+        </label>
+
+        <label>
+          Obiettivo
+          <select id="goal" required>
+            <option value="">Scegli obiettivo</option>
+            <option value="Dimagrimento">Dimagrimento</option>
+            <option value="Massa muscolare">Massa muscolare</option>
+            <option value="Forza">Forza</option>
+            <option value="Tonificazione">Tonificazione</option>
+            <option value="Preparazione generale">Preparazione generale</option>
+          </select>
+        </label>
+
+        <label>
+          Giorni disponibili
+          <select id="days" required>
+            <option value="">Scegli giorni</option>
+            <option value="2 giorni a settimana">2 giorni a settimana</option>
+            <option value="3 giorni a settimana">3 giorni a settimana</option>
+            <option value="4 giorni a settimana">4 giorni a settimana</option>
+            <option value="5 giorni a settimana">5 giorni a settimana</option>
+          </select>
+        </label>
+
+        <label>
+          Livello
+          <select id="level">
+            <option value="Principiante">Principiante</option>
+            <option value="Intermedio">Intermedio</option>
+            <option value="Avanzato">Avanzato</option>
+          </select>
+        </label>
+
+        <label>
+          Note o problemi fisici
+          <textarea id="notes" rows="5" placeholder="Es. infortunio, preferenze, esercizi da evitare..."></textarea>
+        </label>
+
+        <button class="btn primary full" type="submit">Invia richiesta su WhatsApp</button>
+      </form>
+    </section>
+
+    <section id="contatti" class="section contact">
+      <div class="contact-left">
+        <p class="eyebrow">Contatti</p>
+        <h2>Parla con Christopher</h2>
+        <p>
+          Per informazioni sulla palestra o per iniziare il percorso, contatta direttamente Power Gym.
+        </p>
+      </div>
+
+      <div class="contact-card">
+        <p><strong>Admin:</strong> Antonio Vitale</p>
+        <p><strong>Palestra:</strong> Power Gym</p>
+        <p><strong>Slogan:</strong> No Limits. No Excuses.</p>
+        <p><strong>Telefono:</strong> +39 333 123 4567</p>
+        <a id="contactWhatsapp" class="btn primary" href="#">Contatta su WhatsApp</a>
+        <a class="btn secondary" href="https://www.instagram.com/team_amuerte_gym?igsh=bmlmeDlkOThsbm0y" target="_blank" rel="noopener noreferrer">Seguici su Instagram</a>
+        <a class="btn secondary" href="https://www.tiktok.com/@team_amuerte_gym?_r=1&_t=ZN-96nLmgsXjeQ" target="_blank" rel="noopener noreferrer">Seguici su TikTok</a>
+        <a class="btn secondary" href="https://whatsapp.com/channel/0029VbCDOlf6BIEgV4JcIA35" target="_blank" rel="noopener noreferrer">Canale WhatsApp</a>
+        <a class="btn secondary" href="admin.html">Apri area admin</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Power Gym — No Limits. No Excuses.</p>
+  </footer>
+
+  <script src="ui-effects.js?v=png-viewer-download-fix-1"></script>
+  <script src="script.js?v=png-viewer-download-fix-1"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Power Gym</title>
+  <meta name="description" content="Area admin Power Gym collegata al backend Manus." />
+  <link rel="stylesheet" href="styles.css?v=png-viewer-download-fix-1" />
+</head>
+<body class="admin-body">
+  <header class="header">
+    <nav class="nav">
+      <a href="index.html" class="brand">
+        <img src="assets/logo-poster.jpg" alt="Logo Power Gym" />
+        <div>
+          <strong>POWER GYM</strong>
+          <span>Area Admin</span>
+        </div>
+      </a>
+
+      <div class="nav-links admin-nav">
+        <a href="index.html">Home</a>
+        <a href="cliente.html">Area Cliente</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="portal-page jwt-admin-page">
+    <section id="adminLoginPanel" class="login-panel">
+      <p class="eyebrow">Gestionale online</p>
+      <h1>Benvenuto Admin</h1>
+      <p class="muted">Accedi con nome, cognome e codice admin per gestire clienti e schede sul backend Manus.</p>
+
+      <form id="adminJwtLoginForm" class="request-form portal-form">
+        <label>Nome
+          <input id="adminJwtName" type="text" placeholder="Antonio" autocomplete="off" required />
+        </label>
+        <label>Cognome
+          <input id="adminJwtSurname" type="text" placeholder="Vitale" autocomplete="off" required />
+        </label>
+        <label>Codice admin
+          <input id="adminJwtCode" type="password" placeholder="Codice admin" autocomplete="off" required />
+        </label>
+        <button class="btn primary full" type="submit">Entra nell’admin</button>
+        <p id="adminJwtMessage" class="form-message"></p>
+      </form>
+    </section>
+
+    <section id="adminJwtApp" class="client-dashboard hidden">
+      <div class="dashboard-header">
+        <div>
+          <p class="eyebrow">Admin online</p>
+          <h1>Gestione clienti e schede</h1>
+          <p class="muted">I dati vengono salvati su Firebase.</p>
+        </div>
+        <div class="admin-header-actions">
+          <button id="adminJwtLogout" class="btn secondary admin-logout-button" type="button"><span class="button-icon">↪</span><span>Esci</span></button>
+          <button id="openWorkoutTemplatesStar" class="btn secondary template-star-admin-button" type="button"><span class="button-icon">★</span><span>Schede preimpostate</span></button>
+        </div>
+      </div>
+
+      <div id="clientsListView" class="admin-online-grid">
+        <section class="admin-online-card">
+          <div class="block-title-row">
+            <h2>Clienti</h2>
+            <button id="refreshClients" class="btn secondary small" type="button">Aggiorna</button>
+          </div>
+
+          <form id="createClientForm" class="request-form compact-admin-form">
+            <label>Nome cliente
+              <input id="newClientName" type="text" placeholder="Mario" required />
+            </label>
+            <label>Cognome cliente
+              <input id="newClientSurname" type="text" placeholder="Rossi" required />
+            </label>
+            <label>Scadenza
+              <input id="newClientExpiry" type="date" required />
+            </label>
+            <button class="btn primary full" type="submit">Crea cliente</button>
+            <p id="clientAdminMessage" class="form-message"></p>
+          </form>
+
+          <div class="client-search-box">
+            <label>Cerca cliente
+              <input id="clientSearchInput" type="search" placeholder="Cerca per nome o cognome..." autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="backup-box backup-box-compact">
+            <button id="createFirebaseBackup" class="btn secondary" type="button">Crea backup</button>
+            <button id="importFirebaseBackup" class="btn secondary" type="button">Importa backup</button>
+            <input id="importFirebaseBackupFile" type="file" accept="application/json,.json" class="hidden" />
+          </div>
+
+          <div class="custom-exercises-box">
+            <button id="toggleCustomExercises" class="btn secondary full" type="button">
+              <span class="button-icon">＋</span><span>Archivio esercizi personalizzati</span>
+            </button>
+
+            <div id="customExercisesPanel" class="custom-exercises-panel hidden">
+              <div class="block-title-row">
+                <h3>Esercizi personalizzati</h3>
+                <button id="refreshCustomExercises" class="btn secondary small" type="button">Aggiorna</button>
+              </div>
+
+              <form id="customExerciseForm" class="custom-exercise-form">
+                <label>Nome esercizio
+                  <input id="customExerciseName" type="text" placeholder="Es. Panca inclinata multipower" required />
+                </label>
+
+                <label>Gruppo muscolare
+                  <select id="customExerciseGroup" required>
+                    <option value="">Seleziona gruppo</option>
+                    <option value="Petto">Petto</option>
+                    <option value="Dorso">Dorso</option>
+                    <option value="Spalle">Spalle</option>
+                    <option value="Bicipiti">Bicipiti</option>
+                    <option value="Tricipiti">Tricipiti</option>
+                    <option value="Addome">Addome</option>
+                    <option value="Cosce">Cosce</option>
+                    <option value="Polpacci">Polpacci</option>
+                    <option value="Cardio">Cardio</option>
+                  </select>
+                </label>
+
+                <label>Foto esercizio
+                  <input id="customExerciseImage" type="file" accept="image/*" />
+                </label>
+
+                <label>Descrizione / note
+                  <textarea id="customExerciseDescription" rows="3" placeholder="Note tecniche, variante, macchina usata..."></textarea>
+                </label>
+
+                <button class="btn primary full" type="submit">Salva esercizio</button>
+              </form>
+
+              <div id="customExercisesList" class="custom-exercises-list">
+                <p class="muted">Nessun esercizio personalizzato caricato.</p>
+              </div>
+
+              <p id="customExercisesMessage" class="form-message"></p>
+            </div>
+          </div>
+
+          <div id="clientsList" class="online-list"></div>
+        </section>
+
+        <section class="admin-online-card">
+          <div class="block-title-row">
+            <h2>Crea scheda</h2>
+            <button id="addJwtWorkoutRow" class="btn secondary small add-exercise-row-button" type="button"><span class="button-icon">+</span><span>Aggiungi esercizio + riga</span></button>
+          </div>
+
+          <p id="selectedClientLabel" class="selected-client-label">Seleziona un cliente dalla lista</p>
+          <form id="createWorkoutForm" class="request-form compact-admin-form">
+            <label>Cliente selezionato
+              <select id="workoutClientSelect" required></select>
+            </label>
+            <label>Obiettivo
+              <input id="workoutGoal" type="text" placeholder="Massa muscolare" required />
+            </label>
+            <label>Livello
+              <select id="workoutLevel">
+                <option value="principiante">Principiante</option>
+                <option value="intermedio" selected>Intermedio</option>
+                <option value="avanzato">Avanzato</option>
+              </select>
+            </label>
+            <label>Scadenza scheda
+              <input id="workoutExpiry" type="date" required />
+            </label>
+            <label>Note generali
+              <textarea id="workoutNotes" rows="3" placeholder="Note per il cliente"></textarea>
+            </label>
+
+            <section class="import-workout-box">
+              <div class="block-title-row">
+                <div>
+                  <h3>Importa scheda da testo</h3>
+                  <p class="muted">Carica una foto della scheda: il sito prova a leggerla e a creare automaticamente le righe.</p>
+                </div>
+              </div>
+              <textarea id="importWorkoutText" rows="6" placeholder="Esempio:
+Giorno A
+Panca Piana - 4x10 - 90 sec
+Super serie: Curl Bilanciere + Curl Manubri - 4x10 - 60 sec"></textarea>
+        <div class="photo-import-box">
+          <label class="photo-import-label">Importa scheda da foto
+            <input id="importWorkoutImage" type="file" accept="image/*" />
+          </label>
+          <button class="btn secondary full" type="button" id="importWorkoutImageButton">Leggi foto e crea scheda</button>
+          <p class="muted small-note">La foto viene letta dal telefono/browser. Se il testo non è perfetto, puoi correggerlo e premere Importa righe.</p>
+        </div>
+              <button id="importWorkoutButton" class="btn secondary full" type="button">Importa righe nella scheda</button>
+              <p id="importWorkoutMessage" class="form-message"></p>
+            </section>
+
+            <div id="jwtWorkoutRows" class="jwt-workout-rows"></div>
+            <p class="empty-workout-hint">Nessun esercizio aggiunto. Premi “Aggiungi esercizio + riga” per iniziare.</p>
+
+            <div class="creation-action-row">
+              <button class="btn primary full" type="submit">Salva scheda online</button>
+              <button id="downloadWorkoutPng" class="btn secondary full" type="button">Scarica PNG scheda</button>
+            </div>
+            <p id="workoutAdminMessage" class="form-message"></p>
+          </form>
+        </section>
+      </div>
+
+      <section id="workoutDedicatedView" class="admin-online-card workout-dedicated-view hidden">
+        <div class="dashboard-header compact-dashboard-header">
+          <div>
+            <p class="eyebrow">Crea scheda</p>
+            <h1 id="dedicatedWorkoutTitle">Crea scheda cliente</h1>
+            <p id="dedicatedWorkoutSub" class="muted">Lavora su una pagina dedicata al cliente selezionato.</p>
+          </div>
+          <button id="backToClientsList" class="btn secondary back-clients-button" type="button"><span class="button-icon">←</span><span>Torna ai clienti</span></button>
+        </div>
+
+        <div id="workoutFormMount"></div>
+      </section>
+
+      <section id="workoutTemplatesPage" class="admin-online-card workout-templates-page hidden">
+        <div class="dashboard-header compact-dashboard-header">
+          <div>
+            <p class="eyebrow">Preset</p>
+            <h1>Schede preimpostate</h1>
+            <p class="muted">Crea schede base permanenti e copiale velocemente nei clienti.</p>
+          </div>
+          <button id="backFromWorkoutTemplates" class="btn secondary back-clients-button template-back-button" type="button"><span class="button-icon">←</span><span>Torna</span></button>
+        </div>
+
+        <div class="templates-page-grid">
+          <section class="template-create-panel">
+            <div>
+              <h2>Crea preimpostata</h2>
+              <p class="muted">Dai un nome e premi crea: si apre il costruttore scheda per prepararla da zero.</p>
+            </div>
+
+            <label>Nome scheda preimpostata
+              <input id="workoutTemplateName" type="text" placeholder="Es. Nuovo cliente massa" />
+            </label>
+
+            <button id="saveCurrentWorkoutTemplate" class="btn primary full" type="button">+ Crea nuova scheda preimpostata</button>
+          </section>
+
+          <section class="template-list-panel">
+            <div class="block-title-row">
+              <h2>Le tue schede</h2>
+              <button id="refreshWorkoutTemplates" class="btn secondary small" type="button">Aggiorna</button>
+            </div>
+
+            <div id="workoutTemplatesList" class="templates-list">
+              <p class="muted">Nessuna scheda preimpostata salvata.</p>
+            </div>
+          </section>
+        </div>
+
+        <p id="workoutTemplatesMessage" class="form-message"></p>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js?v=png-viewer-download-fix-1"></script>
+  <script src="firebase-api.js?v=png-viewer-download-fix-1"></script>
+  <script src="manus-api.js?v=png-viewer-download-fix-1"></script>
+  <script src="local-exercises.js?v=png-viewer-download-fix-1"></script>
+  <script src="ui-effects.js?v=png-viewer-download-fix-1"></script>
+  <script src="admin.js?v=png-viewer-download-fix-1"></script>
+</body>
+</html>
